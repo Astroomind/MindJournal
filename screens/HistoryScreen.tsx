@@ -2,8 +2,19 @@ import { useState, useEffect } from 'react';
 import {View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { supabase } from '../lib/supabase';
 
+type JournalEntry = {
+  id: string;
+  content: string;        
+  mood: number | null;
+  created_at: string;
+};
+
 
 export default function HistoryScreen() {
+    const [entries, setEntries] = useState<JournalEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>History 📜</Text>
