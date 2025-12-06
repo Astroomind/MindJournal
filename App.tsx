@@ -23,6 +23,7 @@ export default function App() {
     checkUser();
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+
         setIsSignedIn(!!session);
       }
     );
@@ -41,8 +42,8 @@ export default function App() {
       >
         <ActivityIndicator size="large" />
         </View>
-    )
-  }
+   )
+ }
   if (isSignedIn == false) {
     return <AuthScreen />;
   }
