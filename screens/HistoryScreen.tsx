@@ -1,4 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { supabase } from '../lib/supabase';
+
 
 export default function HistoryScreen() {
   return (

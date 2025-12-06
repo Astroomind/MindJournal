@@ -21,9 +21,46 @@ export default function JournalScreen() {
 
     setStatusMessage('Saving entry...');
 
-    console.log('Saving journal entry (local only):', { mood, entryText });
+        const { data: userData, error: userError } = await supabase.auth.getUser();
 
-    // We’ll replace this console.log with a real Supabase insert in the next step
+    if (userError) {
+      console.log('Error getting user:', userError);
+      setStatusMessage('Could not check user status. Please try again.');
+      return;
+    }
+
+    if (!userData.user) {
+      setStatusMessage('Please sign in before saving your journal.');
+      return;
+    }
+      const { error: profileError } = await supabase.from('profiles').upsert({
+    id: userData.user.id,
+  });
+
+  if (profileError) {
+    console.log('Error ensuring profile exists:', profileError);
+    setStatusMessage('There was a problem preparing your profile. Please try again.');
+    return;
+  }
+
+
+        const { error: insertError } = await supabase.from('journal_entries').insert({
+      user_id: userData.user.id,
+      content: entryText,
+      mood: mood,
+      // entry_date will be auto-generated from created_at in your SQL
+    });
+
+    if (insertError) {
+      console.log('Error inserting journal entry:', insertError);
+      setStatusMessage('There was a problem saving your entry. Please try again.');
+      return;
+    }
+
+        setStatusMessage('Entry saved to your journal ✅');
+    setEntryText('');
+    setMood(null);
+
   };
 
 
@@ -76,27 +113,13 @@ export default function JournalScreen() {
         onChangeText={setEntryText}
       />
 
-      <TouchableOpacity
-        style={styles.saveButton}
-        onPress={() => {
-          if (!mood) {
-            setStatusMessage('Please select a mood before saving.');
-            return;
-          }
-          if (!entryText.trim()) {
-            setStatusMessage('Please write something before saving.');
-            return;
-          }
+     <TouchableOpacity
+  style={styles.saveButton}
+  onPress={handleSave}
+>
+  <Text style={styles.saveButtonText}>Save Entry</Text>
+</TouchableOpacity>
 
-          console.log('Saving journal entry:', { mood, entryText });
-
-          setStatusMessage('Entry saved (locally for now).');
-          setEntryText('');
-          setMood(null);
-        }}
-      >
-        <Text style={styles.saveButtonText}>Save Entry</Text>
-      </TouchableOpacity>
 
     </ScrollView>
   );
