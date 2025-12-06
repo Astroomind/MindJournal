@@ -1,11 +1,30 @@
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 
 export default function JournalScreen() {
    const [entryText, setEntryText] = useState('');
    const [mood, setMood] = useState<number | null>(null);
    const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+     const handleSave = async () => {
+    if (!mood) {
+      setStatusMessage('Please select a mood before saving.');
+      return;
+    }
+
+    if (!entryText.trim()) {
+      setStatusMessage('Please write something before saving.');
+      return;
+    }
+
+    setStatusMessage('Saving entry...');
+
+    console.log('Saving journal entry (local only):', { mood, entryText });
+
+    // We’ll replace this console.log with a real Supabase insert in the next step
+  };
 
 
   return (
