@@ -52,24 +52,106 @@ export default function InsightsScreen() {
     fetchEntries();
   }, []);
 
+    const totalEntries = entries.length;
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Insights 📊</Text>
-      <Text>AI-based mood and journaling insights will show here.</Text>
-    </View>
+  const moodValues = entries
+    .map((entry) => entry.mood)
+    .filter((mood): mood is number => mood !== null);
+
+  const averageMood =
+    moodValues.length > 0
+      ? moodValues.reduce((sum, value) => sum + value, 0) / moodValues.length
+      : null;
+
+  const lastEntryDate =
+    entries.length > 0 ? new Date(entries[0].created_at) : null;
+
+
+
+    return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text style={styles.title}>Insights 📊</Text>
+
+      {loading && <Text style={styles.info}>Crunching your data...</Text>}
+
+      {!loading && error && <Text style={styles.error}>{error}</Text>}
+
+      {!loading && !error && totalEntries === 0 && (
+        <Text style={styles.info}>
+          No entries yet. Start journaling to see insights here.
+        </Text>
+      )}
+
+      {!loading && !error && totalEntries > 0 && (
+        <>
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Total entries</Text>
+            <Text style={styles.cardValue}>{totalEntries}</Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Average mood</Text>
+            <Text style={styles.cardValue}>
+              {averageMood !== null ? averageMood.toFixed(1) + ' / 5' : 'N/A'}
+            </Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Most recent entry</Text>
+            <Text style={styles.cardValue}>
+              {lastEntryDate
+                ? lastEntryDate.toLocaleDateString(undefined, {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : 'N/A'}
+            </Text>
+          </View>
+        </>
+      )}
+    </ScrollView>
   );
-}
 
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  content: {
     padding: 16,
   },
-  text: {
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  info: {
+    fontSize: 16,
+    color: '#4b5563',
+  },
+  error: {
+    fontSize: 16,
+    color: '#dc2626',
+  },
+  card: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+    marginTop: 12,
+  },
+  cardLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  cardValue: {
     fontSize: 20,
-    marginBottom: 8,
+    fontWeight: '600',
+    color: '#111827',
   },
 });
